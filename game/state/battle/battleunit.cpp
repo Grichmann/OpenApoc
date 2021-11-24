@@ -4494,7 +4494,8 @@ void BattleUnit::dropDown(GameState &state)
 		while (it != agent->equipment.end())
 		{
 			auto e = *it++;
-			if (e->type->type != AEquipmentType::Type::Armor)
+			if ((agent->isDead() && e->type->type == AEquipmentType::Type::Armor) || // If the agent is dead, drop armour
+				(e->type->type != AEquipmentType::Type::Armor)) // If the agent is not dead, do not drop armour
 			{
 				addMission(state, BattleUnitMission::dropItem(*this, e));
 			}
@@ -4502,17 +4503,19 @@ void BattleUnit::dropDown(GameState &state)
 	}
 	// Drop down
 	addMission(state, BattleUnitMission::changeStance(*this, targetState));
+	
 	// Drop all armor after going down
-	if (agent->type->inventory)
-	{
-		for (auto e : agent->equipment)
-		{
-			if (e->type->type == AEquipmentType::Type::Armor)
-			{
-				addMission(state, BattleUnitMission::dropItem(*this, e), true);
-			}
-		}
-	}
+	// Not sure why this was separate from dropping the rest of the gear; merged.
+	//if (agent->type->inventory)
+	//{
+	//	for (auto e : agent->equipment)
+	//	{
+	//		if (e->type->type == AEquipmentType::Type::Armor)
+	//		{
+	//			addMission(state, BattleUnitMission::dropItem(*this, e), true);
+	//		}
+	//	}
+	//}
 
 	this->markUnVisible(state);
 }
